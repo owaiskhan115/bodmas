@@ -1,0 +1,90 @@
+private static void Bodmas()
+		{
+
+			string equation = "4-2/2+5*3";
+
+			var temp = equation.Split('/', '*', '+', '-');
+
+
+			var opMatches = new Regex("([^0-9])").Matches(equation);
+
+			List<string> operators = new List<string>();
+
+			
+			foreach (Match match in opMatches)
+			{
+				operators.Add(match.Value);
+			}
+
+			operators=operators.OrderByDescending(x => x == "-").OrderByDescending(x => x == "+").OrderByDescending(x => x == "*").OrderByDescending(x => x == "/").ToList();
+
+			foreach (var op in operators)
+			{
+				if (op == "/")
+				{
+					equation = EquationResult(equation, "/");
+				}
+				else if (op == "*")
+				{
+					equation = EquationResult(equation,"*");
+				}
+				else if (op == "+")
+				{
+					equation = EquationResult(equation, "+");
+
+				}
+				else if (op == "-")
+				{
+					equation = EquationResult(equation, "-");
+				}
+			}
+
+		}
+
+		private static string EquationResult(string equation, string op)
+		{
+			float _t = 0;
+
+			switch (op)
+			{
+				case "/":
+					_t = float.Parse(PrevValue(equation, op)) / float.Parse(NextValue(equation, op));
+					break;
+				case "*":
+					_t = float.Parse(PrevValue(equation, op)) * float.Parse(NextValue(equation, op));
+					break;
+				case "+":
+					_t = float.Parse(PrevValue(equation, op)) + float.Parse(NextValue(equation, op));
+					break;
+				case "-":
+					_t = float.Parse(PrevValue(equation, op)) - float.Parse(NextValue(equation, op));
+					break;
+			}
+
+			equation = equation.Replace(PrevValue(equation, op) + op + NextValue(equation, op), _t.ToString());
+			return equation;
+		}
+
+		private static string PrevValue(string equation, string op)
+		{
+			var st = equation.Substring(0, equation.IndexOf(op));
+
+			Regex r = new Regex(@"(\d+)+");
+
+			var matches = r.Matches(st);
+
+			var match = matches[matches.Count - 1];
+			return match.Value;
+		}
+
+		private static string NextValue(string equation, string op)
+		{
+			var st = equation.Substring(equation.IndexOf(op));
+
+			Regex r = new Regex(@"(\d+)+");
+
+			var matches = r.Matches(st);
+
+			var match = matches[0];
+			return match.Value;
+		}
